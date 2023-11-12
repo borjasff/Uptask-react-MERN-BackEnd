@@ -1,4 +1,5 @@
 import Proyect from "../models/Proyect.js"
+import Task from "../models/Task.js";
 
 
 const getProyects = async (req, res) => {
@@ -34,7 +35,11 @@ const getProyect = async (req, res) => {
     return res.status(404).json({ msg: error.message});
   };
 
-    res.json(proyect);
+  //get task of proyect
+    //Only access to proyect if you are creator or colaborator
+    const tasks = await Task.find().where("proyect").equals(proyect._id);
+
+    res.json({proyect, tasks});
 }
 
 
@@ -91,8 +96,6 @@ const addColaborator = async (req, res) => {
 const deleteColaborator = async (req, res) => {
   
 }
-const getTasks = async (req, res) => {
-  
-}
 
-export {getProyects, newProyect, getProyect, editProyect, deleteProyect, addColaborator, deleteColaborator, getTasks }
+
+export {getProyects, newProyect, getProyect, editProyect, deleteProyect, addColaborator, deleteColaborator }
