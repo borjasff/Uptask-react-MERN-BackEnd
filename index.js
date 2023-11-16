@@ -2,6 +2,7 @@
 //search en node module express package
 import express from "express"
 import dotenv from "dotenv";
+import cors from "cors";
 import connectDB from "./config/db.js";
 import userRouters from "./routes/userRoutes.js"
 import proyectRoutes from "./routes/proyectRoutes.js";
@@ -14,6 +15,22 @@ dotenv.config();
 
 connectDB();
 
+//configuration cors
+const whitelist = [process.env.FRONTEND_URL];
+
+const corsOptions = {
+    origin: function(origin, callback) { 
+        console.log(origin)
+        if(whitelist.includes(origin)){
+            //can API consult 
+            callback(null, true);
+        } else {
+            //DONT HAVE PERMISSIONS
+            callback(new Error("Error en el Cors"));
+        }
+    }
+}
+app.use(cors(corsOptions));
 //Routing
 app.use('/api/users',  userRouters);
 app.use('/api/proyects',  proyectRoutes);

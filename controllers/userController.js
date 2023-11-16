@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import generateId from "../helpers/generateId.js"
 import generateJWT from "../helpers/generateJWT.js";
+import { emailRegister, emailForgotPassword } from "../helpers/email.js";
 
 const register = async (req, res) => {
     //req send to server and res send to user
@@ -10,16 +11,21 @@ const register = async (req, res) => {
     const userExit = await User.findOne({ email});
     
     if( userExit){
-        const error = new Error ("User registered")
-        
+        const error = new Error ("User registered");
         return res.status(404).json({ msg: error.message });
     }
     try {
         //create user with info model
         const user = new User(req.body);
         user.token = generateId();
-        const userSave = await user.save();
-        res.json(userSave);
+        await user.save();
+
+        //send email confirmation
+        emailRegister({ 
+            email: user.email,
+            name: user.name,
+            token: user.token})
+        res.json({msg: 'User Created successfully, Look you Email to verify your account'});
     } catch (error) {
         console.error(error);
     }
@@ -89,6 +95,13 @@ const register = async (req, res) => {
     try {
         user.token = generateId()
         await user.save();
+        
+        //send email notification
+        emailForgotPassword({
+            email: user.email,
+            name: user.name,
+            token: user.token
+        })
         res.json({msg: "we send email successfully with the instructions"})
         console.log(user);
     } catch (error) {
