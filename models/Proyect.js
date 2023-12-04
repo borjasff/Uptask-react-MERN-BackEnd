@@ -25,7 +25,13 @@ const proyectsSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     },
-    colaborators: [
+    tasks: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Task'
+        }
+    ],
+    collaborators: [
         {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

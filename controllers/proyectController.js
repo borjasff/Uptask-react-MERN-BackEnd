@@ -1,9 +1,14 @@
 import Proyect from "../models/Proyect.js"
-import Task from "../models/Task.js";
+import User from "../models/User.js";
 
 
 const getProyects = async (req, res) => {
-  const proyects = await Proyect.find().where("creator").equals(req.user);
+  const proyects = await Proyect.find({
+    '$or' : [
+      {'collaborators': {$in: req.user}},
+      {'creator': {$in: req.user}},
+    ]
+  }).select("-tasks");
   res.json(proyects);
 }
 
@@ -24,7 +29,7 @@ const newProyect = async (req, res) => {
 const getProyect = async (req, res) => {
   const { id } = req.params;
 
-  const proyect = await Proyect.findById(id);
+  const proyect = await Proyect.findById(id).populate("tasks").populate("collaborators", "name email");
   
   if(!proyect){
     const error = new Error("Not found");
@@ -35,11 +40,9 @@ const getProyect = async (req, res) => {
     return res.status(404).json({ msg: error.message});
   };
 
-  //get task of proyect
-    //Only access to proyect if you are creator or colaborator
-    const tasks = await Task.find().where("proyect").equals(proyect._id);
 
-    res.json({proyect, tasks});
+
+    res.json(proyect);
 }
 
 
@@ -90,12 +93,68 @@ const deleteProyect = async (req, res) => {
     console.log(error);
   }
 }
-const addColaborator = async (req, res) => {
-  
+const findCollaborator = async (req, res) => {
+  const {email} = req.body
+  const user = await User.findOne({ email }).select("-confirm -createdAt -password -token -updatedAt -__v")
+
+  if(!user) {
+    const error = new Error("User Not Found"); 
+    return res.status(404).json({ msg: error.message});
+  }
+  res.json(user)
 }
-const deleteColaborator = async (req, res) => {
-  
+const addCollaborator = async (req, res) => {
+  const proyect = await Proyect.findById(req.params.id);
+  //if not found proyect
+  if(!proyect) {
+    const error = new Error("Proyect Not Found"); 
+    return res.status(404).json({ msg: error.message});
+  }
+  //if user isn't creator of Proyect
+  if(proyect.creator.toString() !== req.user._id.toString()) {
+    const error = new Error("Invalid Activity"); 
+    return res.status(404).json({ msg: error.message});
+  }
+  const {email} = req.body
+  const user = await User.findOne({ email }).select("-confirm -createdAt -password -token -updatedAt -__v")
+
+  if(!user) {
+    const error = new Error("User Not Found"); 
+    return res.status(404).json({ msg: error.message});
+  }
+  //collaborator isnt admin of the proyect
+  if(proyect.creator.toString() === user._id.toString()) {
+    const error = new Error("Admin of the proyect cant be collaborator"); 
+    return res.status(404).json({ msg: error.message});
+  }
+  //the user isnt added to the proyect
+  if(proyect.collaborators.includes(user._id)){
+    const error = new Error("User already added to the proyect"); 
+    return res.status(404).json({ msg: error.message});
+  }
+
+  // if all is right, we can add the user to the proyect as collaborator
+  proyect.collaborators.push(user._id);
+  await proyect.save()
+  res.json( { msg: "Collaborator added successfully"})
+}
+const deleteCollaborator = async (req, res) => {
+  const proyect = await Proyect.findById(req.params.id);
+  //if not found proyect
+  if(!proyect) {
+    const error = new Error("Proyect Not Found"); 
+    return res.status(404).json({ msg: error.message});
+  }
+  //if user isn't creator of Proyect
+  if(proyect.creator.toString() !== req.user._id.toString()) {
+    const error = new Error("Invalid Activity"); 
+    return res.status(404).json({ msg: error.message});
+  }
+  // if all is right, we can delete the user to the proyect as collaborator
+  proyect.collaborators.pull(req.body.id);
+  await proyect.save()
+  res.json( { msg: "Collaborator delete successfully"})
 }
 
 
-export {getProyects, newProyect, getProyect, editProyect, deleteProyect, addColaborator, deleteColaborator }
+export {getProyects, newProyect, getProyect, editProyect, deleteProyect, addCollaborator, deleteCollaborator, findCollaborator }
