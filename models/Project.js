@@ -1,7 +1,7 @@
 import { Timestamp } from "mongodb";
 import mongoose from "mongoose";
 
-const proyectsSchema = mongoose.Schema({
+const projectsSchema = mongoose.Schema({
     name: {
         type: String,
         trim: true,
@@ -43,5 +43,5 @@ const proyectsSchema = mongoose.Schema({
     }
 );
 
-const Proyect = mongoose.model('Proyect', proyectsSchema);
-export default Proyect;
+const Project = mongoose.model('Project', projectsSchema);
+export default Project;

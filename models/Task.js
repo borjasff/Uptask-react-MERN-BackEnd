@@ -24,10 +24,14 @@ const taskSchema = mongoose.Schema({
         required: true,
         enum: ["Low", "Medium", "High"],
     },
-    proyect: {
+    project: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Proyect',
+        ref: 'Project',
     },
+    completed: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }
 },
     {
         timestamps: true,

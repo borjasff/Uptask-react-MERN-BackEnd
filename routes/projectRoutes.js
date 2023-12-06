@@ -1,20 +1,20 @@
 import express from "express";
 import checkAuth from "../middleware/checkAuth.js";
-import {getProyects, newProyect, getProyect, editProyect, deleteProyect,findCollaborator, addCollaborator, deleteCollaborator } from "../controllers/proyectController.js";
+import {getProjects, newProject, getProject, editProject, deleteProject,findCollaborator, addCollaborator, deleteCollaborator } from "../controllers/projectController.js";
 
 const router = express.Router();
 
 
 router
     .route("/")
-    .get(checkAuth, getProyects)
-    .post(checkAuth, newProyect);
+    .get(checkAuth, getProjects)
+    .post(checkAuth, newProject);
 
 router
     .route("/:id")
-    .get(checkAuth, getProyect)
-    .put(checkAuth, editProyect)
-    .delete(checkAuth, deleteProyect);
+    .get(checkAuth, getProject)
+    .put(checkAuth, editProject)
+    .delete(checkAuth, deleteProject);
 
 router.post('/collaborators', checkAuth, findCollaborator)
 router.post("/collaborators/:id", checkAuth, addCollaborator);
