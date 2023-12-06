@@ -4,7 +4,7 @@ import {getProjects, newProject, getProject, editProject, deleteProject,findColl
 
 const router = express.Router();
 
-
+//routing
 router
     .route("/")
     .get(checkAuth, getProjects)

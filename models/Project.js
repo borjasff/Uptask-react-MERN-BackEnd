@@ -1,6 +1,6 @@
 import { Timestamp } from "mongodb";
 import mongoose from "mongoose";
-
+//model project
 const projectsSchema = mongoose.Schema({
     name: {
         type: String,
@@ -42,6 +42,6 @@ const projectsSchema = mongoose.Schema({
         timestamps: true,
     }
 );
-
+//save project model in Project
 const Project = mongoose.model('Project', projectsSchema);
 export default Project;

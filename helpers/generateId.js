@@ -1,4 +1,4 @@
-
+//to generate id, with random number and date
 const generateId = () => {
     const random = Math.random().toString(32).substring(2);
     const date = Date.now().toString(32);

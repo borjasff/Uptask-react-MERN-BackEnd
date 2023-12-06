@@ -3,7 +3,7 @@ import { addTask, getTask, updateTask, deleteTask, changeState } from "../contro
 import checkAuth from '../middleware/checkAuth.js';
 
 const router = express.Router();
-
+//routing of tasks
 router.post("/",checkAuth, addTask);
 router
         .route("/:id")

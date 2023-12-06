@@ -4,6 +4,7 @@ export const emailRegister = async (data) => {
 
   const { email, name, token} = data;
 
+  //information in nodemailer transport
   const transport = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,

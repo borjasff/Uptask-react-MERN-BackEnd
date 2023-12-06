@@ -1,7 +1,7 @@
 import Project from "../models/Project.js"
 import User from "../models/User.js";
 
-
+//get projects find collaborators and creator witout task and send res in format json of project
 const getProjects = async (req, res) => {
   const projects = await Project.find({
     '$or' : [
@@ -12,7 +12,7 @@ const getProjects = async (req, res) => {
   res.json(projects);
 }
 
-
+//create a new project
 const newProject = async (req, res) => {
   const project = new Project(req.body);
   project.creator = req.user._id;
@@ -25,10 +25,10 @@ const newProject = async (req, res) => {
   }
 }
 
-
+//get project
 const getProject = async (req, res) => {
   const { id } = req.params;
-
+  //find by id , to recobery tasks parameters
   const project = await Project.findById(id)
                                 .populate({
                                       path: "tasks", 
@@ -36,6 +36,7 @@ const getProject = async (req, res) => {
                                             path: 'completed', select: 'name'}})
                                 .populate("collaborators", "name email");
   
+  //msg error
   if(!project){
     const error = new Error("Not found");
     return res.status(404).json({ msg: error.message});
@@ -51,7 +52,7 @@ const getProject = async (req, res) => {
     res.json(project);
 }
 
-
+//edit project
 const editProject = async (req, res) => {
   const { id } = req.params;
 
@@ -61,22 +62,27 @@ const editProject = async (req, res) => {
     const error = new Error("Not found");
     return res.status(404).json({ msg: error.message});
   }
+  //creator is not the same as user
   if(project.creator.toString() !== req.user._id.toString()){
     const error = new Error("Not Authorized"); 
     return res.status(404).json({ msg: error.message});
   };
+  //save the new valor or save in the project
   project.name = req.body.name || project.name;
   project.description = req.body.description || project.description;
   project.entryDate = req.body.entryDate || project.entryDate;
   project.client = req.body.client || project.client;
 
   try {
+    // to save edit, and return res
     const saveProject = await project.save();
     res.json(saveProject)
   } catch (error) {
     console.log(error);
   }
 }
+
+
 const deleteProject = async (req, res) => {
   //identify project
   const { id } = req.params;
@@ -99,6 +105,8 @@ const deleteProject = async (req, res) => {
     console.log(error);
   }
 }
+
+//find collaborator and select the params
 const findCollaborator = async (req, res) => {
   const {email} = req.body
   const user = await User.findOne({ email }).select("-confirm -createdAt -password -token -updatedAt -__v")
@@ -109,6 +117,8 @@ const findCollaborator = async (req, res) => {
   }
   res.json(user)
 }
+
+
 const addCollaborator = async (req, res) => {
   const project = await Project.findById(req.params.id);
   //if not found project
@@ -144,6 +154,8 @@ const addCollaborator = async (req, res) => {
   await project.save()
   res.json( { msg: "Collaborator added successfully"})
 }
+
+
 const deleteCollaborator = async (req, res) => {
   const project = await Project.findById(req.params.id);
   //if not found project
